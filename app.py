@@ -35,7 +35,7 @@ def get_icon_for_condition(condition):
     for key in condition_icons:
         if key.lower() in condition.lower():
             return f"/static/icons/{condition_icons[key]}"
-    return "/static/icons/default.png"  # Fallback icon
+    return "/static/icons/default.png"  
 
 def get_weather_data(city_name):
     # Fetch current weather data
@@ -69,7 +69,7 @@ def plot_forecast(forecast_data):
         dates.append(date)
         temperatures.append(temp)
     
-    # Plotting
+    
     plt.figure(figsize=(10, 5))
     plt.plot(dates, temperatures, marker='o', linestyle='-', color='b')
     plt.title("5-Day Temperature Forecast")
