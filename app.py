@@ -58,28 +58,25 @@ def get_weather_data(city_name):
     
     return current_data, forecast_data
 
-def plot_forecast(forecast_data):
+def plot_forecast(forecast_data, city_name):
     dates = []
     temperatures = []
     
-    # Process forecast data
     for item in forecast_data['list']:
         date = datetime.fromtimestamp(item['dt'])
         temp = item['main']['temp']
         dates.append(date)
         temperatures.append(temp)
     
-    
     plt.figure(figsize=(10, 5))
     plt.plot(dates, temperatures, marker='o', linestyle='-', color='b')
-    plt.title("5-Day Temperature Forecast")
+    plt.title(f"5-Day Temperature Forecast for {city_name}")
     plt.xlabel("Date and Time")
     plt.ylabel("Temperature (°C)")
     plt.xticks(rotation=45)
     plt.tight_layout()
     
-    # Save plot to static folder
-    plot_path = os.path.join('static', 'plot.png')
+    plot_path = os.path.join('static', f'plot_{city_name}.png')
     plt.savefig(plot_path)
     plt.close()
     return plot_path
@@ -109,7 +106,7 @@ def index():
                     "wind_speed": current_data['wind']['speed'],
                     "icon_path": icon_path
                 }
-                plot_path = plot_forecast(forecast_data)
+                plot_path = plot_forecast(forecast_data,city)
                 
                 weather_data.append((weather_info, plot_path))  # Tuple with info and plot path
     
