@@ -8,7 +8,7 @@ import os
 
 app = Flask(__name__)
 
-API_KEY = open('api_key','r').read().strip()
+API_KEY = open('api_key', 'r').read().strip()
 BASE_URL_CURRENT = 'http://api.openweathermap.org/data/2.5/weather'
 BASE_URL_FORECAST = 'http://api.openweathermap.org/data/2.5/forecast'
 BASE_URL_AQI = 'http://api.openweathermap.org/data/2.5/air_pollution'
@@ -37,20 +37,34 @@ def get_icon_for_condition(condition):
         if key.lower() in condition.lower():
             return f"/static/icons/{condition_icons[key]}"
     return "/static/icons/default.png"  
-def get_aqi_color(aqi):
-    """Return color based on AQI level."""
-    if aqi == 1:
-        return "green"
-    elif aqi == 2:
-        return "green"
-    elif aqi == 3:
-        return "orange"
-    elif aqi == 4:
-        return "red"
-    elif aqi == 5:
-        return "purple"
-    return "gray"  # Default for unknown AQI
 
+def get_aqi_color(aqi_level):
+    """Return color based on AQI level."""
+    if aqi_level == "Good":
+        return "green"
+    elif aqi_level == "Fair":
+        return "yellowgreen"
+    elif aqi_level == "Moderate":
+        return "orange"
+    elif aqi_level == "Poor":
+        return "red"
+    elif aqi_level == "Very Poor":
+        return "purple"
+    return "gray"
+
+def get_aqi_description(aqi):
+    """Convert AQI index to a descriptive label."""
+    if aqi == 1:
+        return "Good"
+    elif aqi == 2:
+        return "Fair"
+    elif aqi == 3:
+        return "Moderate"
+    elif aqi == 4:
+        return "Poor"
+    elif aqi == 5:
+        return "Very Poor"
+    return "Unknown"
 
 def get_air_quality(lat, lon):
     """Fetch AQI data based on latitude and longitude."""
@@ -62,12 +76,11 @@ def get_air_quality(lat, lon):
     response = requests.get(BASE_URL_AQI, params=params)
     aqi_data = response.json()
     if aqi_data.get("list"):
-        # AQI is provided in a scale from 1 (Good) to 5 (Very Poor)
-        return aqi_data["list"][0]["main"]["aqi"]
+        aqi_value = aqi_data["list"][0]["main"]["aqi"]
+        return get_aqi_description(aqi_value)
     return None
 
 def get_weather_data(city_name):
-    # Fetch current weather data
     current_weather_params = {
         'q': city_name,
         'appid': API_KEY,
@@ -76,7 +89,6 @@ def get_weather_data(city_name):
     response_current = requests.get(BASE_URL_CURRENT, params=current_weather_params)
     current_data = response_current.json()
     
-    # Fetch 5-day forecast data
     forecast_params = {
         'q': city_name,
         'appid': API_KEY,
@@ -85,14 +97,13 @@ def get_weather_data(city_name):
     response_forecast = requests.get(BASE_URL_FORECAST, params=forecast_params)
     forecast_data = response_forecast.json()
 
-    # Get AQI if the current weather data was successful
     if current_data.get("coord"):
         lat = current_data["coord"]["lat"]
         lon = current_data["coord"]["lon"]
         aqi = get_air_quality(lat, lon)
-        current_data["aqi"] = aqi  # Add AQI data to the current data
+        current_data["aqi_description"] = aqi
     else:
-        current_data["aqi"] = None
+        current_data["aqi_description"] = None
     
     return current_data, forecast_data
 
@@ -130,26 +141,24 @@ def index():
             current_data, forecast_data = get_weather_data(city.strip())
             
             if current_data.get("cod") != 200:
-                weather_info = {"error": current_data.get("message", "City not found")}
+                weather_data.append(({"error": current_data.get("message", "City not found. Please provide a correct name and try again!")}, None))
             else:
                 condition = current_data['weather'][0]['description'].title()
                 icon_path = get_icon_for_condition(condition)
                 
-                # Extract and format weather data
                 weather_info = {
                     "city": city.strip().title(),
-                    "temperature": current_data['main']['temp'],
-                    "feels_like": current_data['main']['feels_like'],
+                    "temperature": round(current_data['main']['temp']),
+                    "feels_like": round(current_data['main']['feels_like']),
                     "condition": condition,
                     "humidity": current_data['main']['humidity'],
                     "wind_speed": current_data['wind']['speed'],
-                    "aqi": current_data.get("aqi"),
-                    "aqi_color": get_aqi_color(current_data.get("aqi")),  # Get AQI color
+                    "aqi_description": current_data.get("aqi_description"),
+                    "aqi_color": get_aqi_color(current_data.get("aqi_description")),
                     "icon_path": icon_path
                 }
                 plot_path = plot_forecast(forecast_data, city)
-                
-                weather_data.append((weather_info, plot_path))  # Tuple with info and plot path
+                weather_data.append((weather_info, plot_path))
     
     return render_template("index.html", weather_data=weather_data)
 
