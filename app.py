@@ -8,9 +8,10 @@ import os
 
 app = Flask(__name__)
 
-API_KEY = 'b3e39923ffdefcd9343d76d2f3bec139'
+API_KEY = open('api_key','r').read().strip()
 BASE_URL_CURRENT = 'http://api.openweathermap.org/data/2.5/weather'
 BASE_URL_FORECAST = 'http://api.openweathermap.org/data/2.5/forecast'
+BASE_URL_AQI = 'http://api.openweathermap.org/data/2.5/air_pollution'
 
 # Mapping of weather conditions to corresponding icon files
 condition_icons = {
@@ -36,6 +37,34 @@ def get_icon_for_condition(condition):
         if key.lower() in condition.lower():
             return f"/static/icons/{condition_icons[key]}"
     return "/static/icons/default.png"  
+def get_aqi_color(aqi):
+    """Return color based on AQI level."""
+    if aqi == 1:
+        return "green"
+    elif aqi == 2:
+        return "green"
+    elif aqi == 3:
+        return "orange"
+    elif aqi == 4:
+        return "red"
+    elif aqi == 5:
+        return "purple"
+    return "gray"  # Default for unknown AQI
+
+
+def get_air_quality(lat, lon):
+    """Fetch AQI data based on latitude and longitude."""
+    params = {
+        'lat': lat,
+        'lon': lon,
+        'appid': API_KEY
+    }
+    response = requests.get(BASE_URL_AQI, params=params)
+    aqi_data = response.json()
+    if aqi_data.get("list"):
+        # AQI is provided in a scale from 1 (Good) to 5 (Very Poor)
+        return aqi_data["list"][0]["main"]["aqi"]
+    return None
 
 def get_weather_data(city_name):
     # Fetch current weather data
@@ -55,6 +84,15 @@ def get_weather_data(city_name):
     }
     response_forecast = requests.get(BASE_URL_FORECAST, params=forecast_params)
     forecast_data = response_forecast.json()
+
+    # Get AQI if the current weather data was successful
+    if current_data.get("coord"):
+        lat = current_data["coord"]["lat"]
+        lon = current_data["coord"]["lon"]
+        aqi = get_air_quality(lat, lon)
+        current_data["aqi"] = aqi  # Add AQI data to the current data
+    else:
+        current_data["aqi"] = None
     
     return current_data, forecast_data
 
@@ -101,12 +139,15 @@ def index():
                 weather_info = {
                     "city": city.strip().title(),
                     "temperature": current_data['main']['temp'],
+                    "feels_like": current_data['main']['feels_like'],
                     "condition": condition,
                     "humidity": current_data['main']['humidity'],
                     "wind_speed": current_data['wind']['speed'],
+                    "aqi": current_data.get("aqi"),
+                    "aqi_color": get_aqi_color(current_data.get("aqi")),  # Get AQI color
                     "icon_path": icon_path
                 }
-                plot_path = plot_forecast(forecast_data,city)
+                plot_path = plot_forecast(forecast_data, city)
                 
                 weather_data.append((weather_info, plot_path))  # Tuple with info and plot path
     
