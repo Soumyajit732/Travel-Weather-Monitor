@@ -3,80 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <title>Weather App</title>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     
     <style>
         body {
             font-family: Arial, sans-serif;
-            /* max-width: 800px; */
-            margin: 30px;
-            /* background: black; */
+            background-color: #f5f8fa;
+            color: #333;
+            margin: 0;
+            padding: 20px;
         }
         h1 {
             text-align: center;
-            /* background: white; */
+            font-size: 2rem;
+            color: #444;
+            margin-bottom: 30px;
         }
         form {
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 1.2rem;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            font-size: 1rem;
+        }
+        form input[type="text"] {
+            width: 300px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+        }
+        form button {
+            padding: 10px 20px;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        form button:hover {
+            background-color: #0056b3;
         }
         .grid-container {
-            position: relative;
-            z-index: 5;
             display: grid;
-            grid-template-columns: 1fr 1fr; /* Two columns */
+            grid-template-columns: repeat(2, 1fr);
             gap: 20px;
-            /* background: white; */
+            padding: 0 20px;
         }
         .city-card {
-            border: 1px solid #ccc;
+            border: 1px solid #ddd;
             border-radius: 8px;
-            padding: 15px;
+            padding: 20px;
+            background-color: #fff;
             text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        /* .city-card img {
+        .city-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        .city-card h2 {
+            font-size: 1.5rem;
+            color: #007bff;
+        }
+        .weather-icon {
+            margin: 20px 0;
+            width: 80px;
+            height: 80px;
+        }
+        .forecast-plot {
             width: 100%;
             height: auto;
-            border-radius: 8px;
-        } */
-         .weather-icon{
             margin-top: 20px;
-            width: 100px;
-            height: 100px;
-         }
-        .forecast-plot{
-            width: 600px;
-            height: 350px;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
     <h1>Travel Destination Weather Monitor</h1>
     <form method="POST">
-        <label for="city">Enter city names (separated by commas):</label>
-        <input type="text" id="city" name="city" required>
-        <button type="submit" style="border-radius: 5px; background-color: black; color: white;">Get Weather</button>
+        <input type="text" id="city" name="city" placeholder="Enter cities separated by commas" required>
+        <button type="submit">Get Weather</button>
     </form>
     
     <div class="grid-container">
         {% for info, plot_path in weather_data %}
         <div class="city-card">
-            <h2>{{ info.city }}</h2> 
-            <div class="grid-container" style="gap: 0px;">
+            <h2>{{ info.city }}</h2>
+            <div class="grid-container" style="gap: 0;">
+                <div style="text-align: left;padding-left: 8%;font-size: 1.1rem;"><b>
+                    <p>Temperature: {{ info.temperature }}°C</p>
+                    <p>Feels Like: {{ info.feels_like }}°C</p>
+                    <p>Condition: {{ info.condition }}</p>
+                    <p>Humidity: {{ info.humidity }}%</p>
+                    <p>Wind Speed: {{ info.wind_speed }} m/s</p>
+                    </b>
+                </div>
                 <div>
-                
-                <p>Temperature: {{ info.temperature }}°C</p>
-                <p>Condition: {{ info.condition }}</p>
-                <p>Humidity: {{ info.humidity }}%</p>
-                <p>Wind Speed: {{ info.wind_speed }} m/s</p>
+                    <img src="{{ info.icon_path }}" alt="Weather icon for {{ info.condition }}" class="weather-icon">
+                </div>
             </div>
-            <div>
-                <img src="{{ info.icon_path }}" alt="Weather icon for {{ info.condition }}" class="weather-icon">
+            <center>
+            <div style="text-align: center;"> 
+            {% if info.aqi %}
+                <center>
+                <p style="background-color: {{ info.aqi_color }};color:white;width: 60%;border-radius:5px;font-size:1.1rem;padding-top:8px;padding-bottom:8px;">
+                    AQI: {{ info.aqi }} (1=Good, 5=Very Poor)
+                </p>
+                </center>
+            {% else %}
+                <p>AQI: Data not available</p>
+            {% endif %}
             </div>
-        </div>
+            </center>
             <img src="{{ plot_path }}" alt="Temperature forecast for {{ info.city }}" class="forecast-plot">
         </div>
         {% endfor %}
