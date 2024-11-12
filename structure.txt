@@ -1,0 +1,173 @@
+current_data Structure
+
+{
+  "coord": {
+    "lon": -122.08,
+    "lat": 37.39
+  },
+  "weather": [
+    {
+      "id": 800,
+      "main": "Clear",
+      "description": "clear sky",
+      "icon": "01d"
+    }
+  ],
+  "base": "stations",
+  "main": {
+    "temp": 282.55,
+    "feels_like": 281.86,
+    "temp_min": 280.37,
+    "temp_max": 284.26,
+    "pressure": 1023,
+    "humidity": 100
+  },
+  "visibility": 16093,
+  "wind": {
+    "speed": 1.5,
+    "deg": 350
+  },
+  "clouds": {
+    "all": 1
+  },
+  "dt": 1560350645,
+  "sys": {
+    "type": 1,
+    "id": 5122,
+    "country": "US",
+    "sunrise": 1560343627,
+    "sunset": 1560396563
+  },
+  "timezone": -25200,
+  "id": 420006353,
+  "name": "Mountain View",
+  "cod": 200
+}
+
+forecast_data Structure
+
+{
+  "cod": "200",
+  "message": 0,
+  "cnt": 40,
+  "list": [
+    {
+      "dt": 1605182400,
+      "main": {
+        "temp": 284.26,
+        "feels_like": 282.36,
+        "temp_min": 284.26,
+        "temp_max": 284.82,
+        "pressure": 1019,
+        "sea_level": 1019,
+        "grnd_level": 1013,
+        "humidity": 87,
+        "temp_kf": -0.56
+      },
+      "weather": [
+        {
+          "id": 500,
+          "main": "Rain",
+          "description": "light rain",
+          "icon": "10n"
+        }
+      ],
+      "clouds": {
+        "all": 90
+      },
+      "wind": {
+        "speed": 4.66,
+        "deg": 133
+      },
+      "visibility": 10000,
+      "pop": 0.25,
+      "rain": {
+        "3h": 0.14
+      },
+      "sys": {
+        "pod": "n"
+      },
+      "dt_txt": "2020-11-12 21:00:00"
+    },
+    // Additional forecast entries...
+  ],
+  "city": {
+    "id": 2643743,
+    "name": "London",
+    "coord": {
+      "lat": 51.5074,
+      "lon": -0.1278
+    },
+    "country": "GB",
+    "population": 1000000,
+    "timezone": 0,
+    "sunrise": 1605162327,
+    "sunset": 1605196963
+  }
+}
+
+weather_data Structure
+
+[
+    (
+        {
+            "city": "New York",
+            "temperature": 22,
+            "feels_like": 20,
+            "condition": "Cloudy",
+            "country": "US",
+            "humidity": 65,
+            "visibility": 10000,
+            "wind_speed": 5,
+            "aqi_description": "Good",
+            "aqi_color": "#00FF00",
+            "icon_path": "/path/to/icon.png"
+        },
+        "/path/to/forecast_plot.png"
+    ),
+    (
+        {
+            "city": "San Francisco",
+            "temperature": 18,
+            "feels_like": 16,
+            "condition": "Sunny",
+            "country": "US",
+            "humidity": 72,
+            "visibility": 10000,
+            "wind_speed": 3,
+            "aqi_description": "Moderate",
+            "aqi_color": "#FFFF00",
+            "icon_path": "/path/to/icon.png"
+        },
+        "/path/to/forecast_plot.png"
+    ),
+    # Additional city tuples as needed
+]
+
+aqi_data Structure
+
+{
+    "coord": {  # Coordinates of the requested location
+        "lon": <longitude>,
+        "lat": <latitude>
+    },
+    "list": [
+        {
+            "main": {
+                "aqi": <AQI value>  # Integer representing the AQI level (1 to 5)
+            },
+            "components": {  # Concentration of pollutants in µg/m³
+                "co": <carbon monoxide level>,
+                "no": <nitric oxide level>,
+                "no2": <nitrogen dioxide level>,
+                "o3": <ozone level>,
+                "so2": <sulfur dioxide level>,
+                "pm2_5": <PM2.5 level>,
+                "pm10": <PM10 level>,
+                "nh3": <ammonia level>
+            },
+            "dt": <timestamp>  # Unix timestamp of the data
+        }
+    ]
+}
+
