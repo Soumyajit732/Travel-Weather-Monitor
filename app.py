@@ -39,18 +39,18 @@ def get_icon_for_condition(condition):
     return "/static/icons/default.png"  
 
 def get_aqi_color(aqi_level):
-    """Return color based on AQI level."""
     if aqi_level == "Good":
-        return "green"
+        return "#00E400"  # Bright Green
     elif aqi_level == "Fair":
-        return "yellowgreen"
+        return "#9ACD32"  # Yellow-Green
     elif aqi_level == "Moderate":
-        return "orange"
+        return "#FFBF00"  # Amber Yellow
     elif aqi_level == "Poor":
-        return "red"
+        return "#FF4500"  # Orange-Red
     elif aqi_level == "Very Poor":
-        return "purple"
-    return "gray"
+        return "#B22222"  # Firebrick Red
+    return "#A9A9A9"  # Dark Gray (for unknown or unspecified AQI levels)
+
 
 def get_aqi_description(aqi):
     """Convert AQI index to a descriptive label."""
@@ -119,8 +119,8 @@ def plot_forecast(forecast_data, city_name):
     
     plt.figure(figsize=(10, 5))
     plt.plot(dates, temperatures, marker='o', linestyle='-', color='b')
-    plt.title(f"5-Day Temperature Forecast for {city_name}")
-    plt.xlabel("Date and Time")
+    plt.title(f"5-Day Temperature Forecast for {(city_name).title()}")
+    plt.xlabel("Date")
     plt.ylabel("Temperature (°C)")
     plt.xticks(rotation=45)
     plt.tight_layout()
@@ -151,7 +151,9 @@ def index():
                     "temperature": round(current_data['main']['temp']),
                     "feels_like": round(current_data['main']['feels_like']),
                     "condition": condition,
+                    "country": current_data['sys']['country'],
                     "humidity": current_data['main']['humidity'],
+                    "visibility": current_data['visibility'],
                     "wind_speed": current_data['wind']['speed'],
                     "aqi_description": current_data.get("aqi_description"),
                     "aqi_color": get_aqi_color(current_data.get("aqi_description")),
@@ -164,3 +166,63 @@ def index():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+# {
+#   "cod": "200",
+#   "message": 0,
+#   "cnt": 40,
+#   "list": [
+#     {
+#       "dt": 1605182400,
+#       "main": {
+#         "temp": 284.26,
+#         "feels_like": 282.36,
+#         "temp_min": 284.26,
+#         "temp_max": 284.82,
+#         "pressure": 1019,
+#         "sea_level": 1019,
+#         "grnd_level": 1013,
+#         "humidity": 87,
+#         "temp_kf": -0.56
+#       },
+#       "weather": [
+#         {
+#           "id": 500,
+#           "main": "Rain",
+#           "description": "light rain",
+#           "icon": "10n"
+#         }
+#       ],
+#       "clouds": {
+#         "all": 90
+#       },
+#       "wind": {
+#         "speed": 4.66,
+#         "deg": 133
+#       },
+#       "visibility": 10000,
+#       "pop": 0.25,
+#       "rain": {
+#         "3h": 0.14
+#       },
+#       "sys": {
+#         "pod": "n"
+#       },
+#       "dt_txt": "2020-11-12 21:00:00"
+#     },
+#     // Additional forecast entries...
+#   ],
+#   "city": {
+#     "id": 2643743,
+#     "name": "London",
+#     "coord": {
+#       "lat": 51.5074,
+#       "lon": -0.1278
+#     },
+#     "country": "GB",
+#     "population": 1000000,
+#     "timezone": 0,
+#     "sunrise": 1605162327,
+#     "sunset": 1605196963
+#   }
+# }
